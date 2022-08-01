@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Date;
 import db.DB;
 import db.DbException;
 import model.dao.SellerDao;
@@ -134,7 +134,7 @@ public class SellerDaoJDBC implements SellerDao{
 		ResultSet rs=null;
 		try {
 			st=conn.prepareStatement("SELECT seller.*,department.Name as DepName "
-					+"FROM seler INNER JOIN department "
+					+"FROM seller INNER JOIN department "
 					+"ON seller.DepartmentId=department.Id "
 					+"ORDER BY Name ");
 			
@@ -202,7 +202,7 @@ public class SellerDaoJDBC implements SellerDao{
 		obj.setName(rs.getString("Name"));
 		obj.setEmail(rs.getString("Email"));
 		obj.setBaseSalary(rs.getDouble("BaseSalary"));
-		obj.setBirthDate(rs.getDate("BirthDate"));
+		obj.setBirthDate(new java.util.Date(rs.getTimestamp("BirthDate").getTime()));
 		obj.setDepartment(dep);
 		return obj;
 	}

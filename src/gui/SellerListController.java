@@ -1,6 +1,7 @@
 package gui;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -29,6 +30,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Seller;
+import model.services.DepartmentService;
 import model.services.SellerService;
 
 public class SellerListController implements Initializable, DataChangeListener{
@@ -46,7 +48,13 @@ public class SellerListController implements Initializable, DataChangeListener{
 	@FXML
 	private TableColumn<Seller, Integer> tableColumnId;
 	@FXML
-	private TableColumn<Seller,String> tableColumnName;
+	private TableColumn<Seller,String> tableColumnName;	
+	@FXML
+	private TableColumn<Seller, String> tableColumnEmail;
+	@FXML
+	private TableColumn<Seller,Date> tableColumnBirthDate;
+	@FXML
+	private TableColumn<Seller, Double> tableColumnBaseSalary;
 	@FXML
 	private Button btNew;
 	
@@ -59,8 +67,12 @@ public class SellerListController implements Initializable, DataChangeListener{
 	private void initializeNodes() {
 		tableColumnId.setCellValueFactory(new PropertyValueFactory<>("id"));
 		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("name"));
-		
-		
+		tableColumnEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
+		tableColumnBirthDate.setCellValueFactory(new PropertyValueFactory<>("birthDate"));
+		Utils.formatTableColumnDate(tableColumnBirthDate, "dd/MM/YYYY");
+
+		tableColumnBaseSalary.setCellValueFactory(new PropertyValueFactory<>("baseSalary"));
+		Utils.formatTableColumnDouble(tableColumnBaseSalary, 2);
 		Stage stage=(Stage) Main.getMainScene().getWindow();
 		tableViewSeller.prefHeightProperty().bind(stage.heightProperty());
 	}
@@ -86,27 +98,27 @@ public class SellerListController implements Initializable, DataChangeListener{
 	}
 	
 	private void createDialogForm(Seller obj, String absoluteName, Stage parentStage) {
-		// {
-			//FXMLLoader loader=new FXMLLoader(getClass().getResource(absoluteName));
-			//Pane pane=loader.load();
+		 try{
+			FXMLLoader loader=new FXMLLoader(getClass().getResource(absoluteName));
+			Pane pane=loader.load();
 			
-			//SellerFormController controller=loader.getController();
-			//controller.setSeller(obj);
-			//controller.setSellerService(new SellerService());
-			//controller.subscribeDataChangeListeners(this);
-			//controller.updateFormData();
+			SellerFormController controller=loader.getController();
+			controller.setSeller(obj);
+			controller.setServices(new SellerService(), new DepartmentService());
+			controller.subscribeDataChangeListeners(this);
+			controller.updateFormData();
+			controller.loadAssociatedObjects();
 			
+			Stage dialogStage=new Stage();
+			dialogStage.setScene(new Scene(pane));
+			dialogStage.setResizable(false);
+			dialogStage.initOwner(parentStage);
 			
-			//Stage dialogStage=new Stage();
-			//dialogStage.setScene(new Scene(pane));
-			//dialogStage.setResizable(false);
-			//dialogStage.initOwner(parentStage);
-			
-			//dialogStage.initModality(Modality.WINDOW_MODAL);
-			//dialogStage.showAndWait();
-		//}catch(IOException e) {
-			//Alerts.showAlert("IO Exception", "error creating view", e.getMessage(), AlertType.ERROR);
-		//}
+			dialogStage.initModality(Modality.WINDOW_MODAL);
+			dialogStage.showAndWait();
+		}catch(IOException e){
+			Alerts.showAlert("IO Exception", "error creating view", e.getMessage(), AlertType.ERROR);
+		}
 		
 	}
 
